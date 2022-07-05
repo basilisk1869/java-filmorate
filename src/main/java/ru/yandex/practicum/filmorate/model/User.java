@@ -16,7 +16,6 @@ import java.time.LocalDate;
 @EqualsAndHashCode(callSuper = true)
 public class User extends Base {
 
-    //@Pattern(regexp = "@", message = "User.email имеет неверный формат")
     @NotBlank(message = "User.email не может быть пустым.")
     @Email(message = "User.email имеет неверный формат.")
     private String email;
