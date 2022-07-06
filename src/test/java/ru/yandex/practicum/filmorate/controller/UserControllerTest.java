@@ -8,6 +8,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserTest;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UserController.class)
+@WebMvcTest(value = {UserController.class, UserService.class, UserStorage.class})
 public class UserControllerTest extends BaseControllerTest {
 
     private final static HashMap<Integer, User> users = new HashMap<>();
@@ -76,9 +78,11 @@ public class UserControllerTest extends BaseControllerTest {
 
     @Test
     void shouldNotPostUserTwice() throws Exception {
-        int id = expectedId;
-        postUser(UserTest.getNormalUser(id), 200);
-        postUser(UserTest.getNormalUser(id), 400);
+        User user1 = UserTest.getNormalUser(expectedId);
+        postUser(user1, 200);
+        User user2 = UserTest.getNormalUser(expectedId);
+        user2.setId(user1.getId());
+        postUser(user2, 400);
     }
 
     @Test

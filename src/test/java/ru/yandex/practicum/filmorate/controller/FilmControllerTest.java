@@ -8,6 +8,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmTest;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(FilmController.class)
+@WebMvcTest(value = {FilmController.class, FilmService.class, FilmStorage.class})
 public class FilmControllerTest extends BaseControllerTest {
 
     private final static HashMap<Integer, Film> films = new HashMap<>();
@@ -72,9 +74,11 @@ public class FilmControllerTest extends BaseControllerTest {
 
     @Test
     void shouldNotPostFilmTwice() throws Exception {
-        int id = expectedId;
-        postFilm(FilmTest.getNormalFilm(id), 200);
-        postFilm(FilmTest.getNormalFilm(id), 400);
+        Film film1 = FilmTest.getNormalFilm(expectedId);
+        postFilm(film1, 200);
+        Film film2 = FilmTest.getNormalFilm(expectedId);
+        film2.setId(film1.getId());
+        postFilm(film2, 400);
     }
 
     @Test
