@@ -94,7 +94,7 @@ public class FilmTest extends BaseTest {
     void testWithAncientReleaseDate() {
         Film film = getNormalFilm();
         film.setReleaseDate(LocalDate.of(1895, 12, 27));
-        assertEquals(List.of("releaseDateNotLaterCinemaBirth"), validateFilm(film));
+        assertEquals(List.of("releaseDate"), validateFilm(film));
     }
 
 }

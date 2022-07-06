@@ -5,6 +5,10 @@ import javax.validation.Validator;
 
 public class BaseTest {
 
-    protected final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+    protected final Validator validator;
+
+    public BaseTest() {
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
+    }
 
 }

@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeAll;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -10,17 +9,17 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 public class BaseControllerTest {
 
-    @Autowired
-    protected MockMvc mockMvc;
+    protected final MockMvc mockMvc;
 
-    @Autowired
-    protected ObjectMapper objectMapper;
+    protected final ObjectMapper objectMapper;
 
     protected final String path;
 
     static protected int expectedId = 1;
 
-    public BaseControllerTest(String path) {
+    public BaseControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, String path) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
         this.path = path;
     }
 

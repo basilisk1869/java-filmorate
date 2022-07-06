@@ -1,7 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmTest;
@@ -20,8 +23,9 @@ public class FilmControllerTest extends BaseControllerTest {
 
     private final static HashMap<Integer, Film> films = new HashMap<>();
 
-    public FilmControllerTest() {
-        super("/films");
+    @Autowired
+    public FilmControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) {
+        super(mockMvc, objectMapper, "/films");
     }
 
     void requestFilm(Film film, int status, boolean isPostRequest) throws Exception {
