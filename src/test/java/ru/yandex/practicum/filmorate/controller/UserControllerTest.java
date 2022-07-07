@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(value = {UserController.class, UserService.class, UserStorage.class})
 public class UserControllerTest extends BaseControllerTest {
 
-    private final static HashMap<Integer, User> users = new HashMap<>();
+    private final static HashMap<Long, User> users = new HashMap<>();
 
     @Autowired
     public UserControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) {

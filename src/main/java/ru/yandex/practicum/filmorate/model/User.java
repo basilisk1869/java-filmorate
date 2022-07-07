@@ -8,6 +8,8 @@ import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @SuperBuilder
@@ -29,7 +31,9 @@ public class User extends Base {
 
     @NotNull(message = "User.birthday не может быть null.")
     @Past(message = "User.birthday должно быть в прошлом.")
-    LocalDate birthday;
+    private LocalDate birthday;
+
+    private final Set<Long> friends = new HashSet<>();
 
     @AssertTrue
     boolean isNameReplacedByLogin() {

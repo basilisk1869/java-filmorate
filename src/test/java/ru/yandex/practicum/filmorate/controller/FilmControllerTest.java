@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmTest;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -20,10 +21,10 @@ import java.util.stream.Collectors;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(value = {FilmController.class, FilmService.class, FilmStorage.class})
+@WebMvcTest(value = {FilmController.class, FilmService.class, FilmStorage.class, UserStorage.class})
 public class FilmControllerTest extends BaseControllerTest {
 
-    private final static HashMap<Integer, Film> films = new HashMap<>();
+    private final static HashMap<Long, Film> films = new HashMap<>();
 
     @Autowired
     public FilmControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) {

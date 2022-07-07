@@ -9,6 +9,8 @@ import ru.yandex.practicum.filmorate.annotation.AfterOrEqualsDate;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @SuperBuilder
@@ -28,4 +30,6 @@ public class Film extends Base {
 
     @Positive
     private double duration;
+
+    private final Set<Long> likes = new HashSet<>();
 }

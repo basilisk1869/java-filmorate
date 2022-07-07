@@ -15,7 +15,7 @@ public class BaseControllerTest {
 
     protected final String path;
 
-    static protected int expectedId = 1;
+    static protected long expectedId = 1;
 
     public BaseControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, String path) {
         this.mockMvc = mockMvc;
