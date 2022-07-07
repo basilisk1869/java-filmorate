@@ -1,14 +1,19 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmTest;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserTest;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -18,10 +23,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(value = {FilmController.class, FilmService.class, FilmStorage.class, UserStorage.class})
+@WebMvcTest(value = {FilmController.class, FilmService.class, FilmStorage.class,
+        UserController.class, UserService.class, UserStorage.class})
 public class FilmControllerTest extends BaseControllerTest {
 
     private final static HashMap<Long, Film> films = new HashMap<>();
@@ -31,7 +38,7 @@ public class FilmControllerTest extends BaseControllerTest {
         super(mockMvc, objectMapper, "/films");
     }
 
-    void requestFilm(Film film, int status, boolean isPostRequest) throws Exception {
+    void setFilm(Film film, int status, String method) throws Exception {
         String jsonOut = objectMapper.writeValueAsString(film);
         String jsonIn = jsonOut;
         if (film.getId() == null) {
@@ -39,12 +46,7 @@ public class FilmControllerTest extends BaseControllerTest {
             jsonIn = objectMapper.writeValueAsString(film);
         }
         // make request
-        ResultActions resultActions;
-        if (isPostRequest) {
-            resultActions = mockMvc.perform(makePostRequest(jsonOut));
-        } else {
-            resultActions = mockMvc.perform(makePutRequest(jsonOut));
-        }
+        ResultActions resultActions = mockMvc.perform(makeRequest(method, path, jsonOut));
         resultActions.andExpect(status().is(status));
         if (status == 200) {
             resultActions.andExpect(content().json(jsonIn));
@@ -56,11 +58,11 @@ public class FilmControllerTest extends BaseControllerTest {
     }
 
     void postFilm(Film film, int status) throws Exception {
-        requestFilm(film, status, true);
+        setFilm(film, status, "POST");
     }
 
     void putFilm(Film film, int status) throws Exception {
-        requestFilm(film, status, false);
+        setFilm(film, status, "PUT");
     }
 
     @Test
@@ -132,20 +134,88 @@ public class FilmControllerTest extends BaseControllerTest {
     @Test
     void shouldNotPutFilmWithExistingName() throws Exception {
         Film film1 = FilmTest.getNormalFilm(expectedId);
-        putFilm(film1, 200);
+        postFilm(film1, 200);
         Film film2 = FilmTest.getNormalFilm(expectedId);
         film2.setName(film1.getName());
-        putFilm(film2, 500);
+        putFilm(film2, 404);
     }
 
     @Test
-    void getFilms() throws Exception {
+    void shouldGetFilms() throws Exception {
         List<Film> list = films.values().stream()
-                    .sorted(Comparator.comparing(Film::getId))
-                    .collect(Collectors.toList());
-        mockMvc.perform(makeGetRequest())
+                .sorted(Comparator.comparing(Film::getId))
+                .collect(Collectors.toList());
+        mockMvc.perform(makeGetRequest(""))
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(list)));
     }
 
+    @Test
+    void shouldPutLike() throws Exception {
+        // post user
+        User user = UserTest.getNormalUser(1000L);
+        mockMvc.perform(makeRequest("POST", "/users", objectMapper.writeValueAsString(user)))
+                .andExpect(status().isOk());
+        // post film
+        Film film = FilmTest.getNormalFilm(expectedId);
+        postFilm(film, 200);
+        // put like with wrong user id
+        mockMvc.perform(makePutRequest("/" + film.getId() + "/like/" + (user.getId() + 1), null))
+                .andExpect(status().is(404));
+        // put like with wrong film id
+        mockMvc.perform(makePutRequest("/" + (film.getId() + 1) + "/like/" + user.getId(), null))
+                .andExpect(status().is(404));
+        // put good like
+        film.getLikes().add(user.getId());
+        mockMvc.perform(makePutRequest("/" + film.getId() + "/like/" + user.getId(), null))
+                .andExpect(status().isOk());
+        shouldGetFilms();
+    }
+
+    @Test
+    void shouldDeleteLike() throws Exception {
+        // post user
+        User user = UserTest.getNormalUser(2000L);
+        mockMvc.perform(makeRequest("POST", "/users", objectMapper.writeValueAsString(user)))
+                .andExpect(status().isOk());
+        // post film
+        Film film = FilmTest.getNormalFilm(expectedId);
+        postFilm(film, 200);
+        // put good like
+        film.getLikes().add(user.getId());
+        mockMvc.perform(makePutRequest("/" + film.getId() + "/like/" + user.getId(), null))
+                .andExpect(status().isOk());
+        // delete like with wrong user id
+        mockMvc.perform(makeDeleteRequest("/" + film.getId() + "/like/" + (user.getId() + 1)))
+                .andExpect(status().is(404));
+        // delete like with wrong film id
+        mockMvc.perform(makeDeleteRequest("/" + (film.getId() + 1) + "/like/" + user.getId()))
+                .andExpect(status().is(404));
+        // delete right like
+        film.getLikes().remove(user.getId());
+        mockMvc.perform(makeDeleteRequest("/" + film.getId() + "/like/" + user.getId()))
+                .andExpect(status().isOk());
+        shouldGetFilms();
+    }
+
+    @Test
+    void shouldGetPopularFilms() throws Exception {
+        for (int i = 0; i < 20; i++) {
+            shouldPostNewFilm();
+        }
+        MvcResult result = mockMvc.perform(makeGetRequest("/popular"))
+                .andExpect(status().isOk())
+                .andReturn();
+        List<Film> popularFilms = objectMapper.readValue(result.getResponse().getContentAsString(),
+                new TypeReference<>(){});
+        assertEquals(Integer.min(10, films.size()), popularFilms.size());
+        if (popularFilms.size() > 1) {
+            result = mockMvc.perform(makeGetRequest("/popular?count=2"))
+                    .andExpect(status().isOk())
+                    .andReturn();
+            popularFilms = objectMapper.readValue(result.getResponse().getContentAsString(),
+                    new TypeReference<>(){});
+            assertEquals(2, popularFilms.size());
+        }
+    }
 }
