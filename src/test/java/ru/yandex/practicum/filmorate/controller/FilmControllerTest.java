@@ -33,9 +33,12 @@ public class FilmControllerTest extends BaseControllerTest {
 
     private final static HashMap<Long, Film> films = new HashMap<>();
 
+    private final UserControllerTest userControllerTest;
+
     @Autowired
     public FilmControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) {
         super(mockMvc, objectMapper, "/films");
+        this.userControllerTest = new UserControllerTest(mockMvc, objectMapper);
     }
 
     void setFilm(Film film, int status, String method) throws Exception {
@@ -153,9 +156,8 @@ public class FilmControllerTest extends BaseControllerTest {
     @Test
     void shouldPutLike() throws Exception {
         // post user
-        User user = UserTest.getNormalUser(1000L);
-        mockMvc.perform(makeRequest("POST", "/users", objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk());
+        User user = UserTest.getNormalUser(expectedId);
+        userControllerTest.postUser(user, 200);
         // post film
         Film film = FilmTest.getNormalFilm(expectedId);
         postFilm(film, 200);
@@ -175,9 +177,8 @@ public class FilmControllerTest extends BaseControllerTest {
     @Test
     void shouldDeleteLike() throws Exception {
         // post user
-        User user = UserTest.getNormalUser(2000L);
-        mockMvc.perform(makeRequest("POST", "/users", objectMapper.writeValueAsString(user)))
-                .andExpect(status().isOk());
+        User user = UserTest.getNormalUser(expectedId);
+        userControllerTest.postUser(user, 200);
         // post film
         Film film = FilmTest.getNormalFilm(expectedId);
         postFilm(film, 200);
