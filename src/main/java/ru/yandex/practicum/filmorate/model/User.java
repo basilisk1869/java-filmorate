@@ -5,15 +5,19 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import ru.yandex.practicum.filmorate.annotation.CheckUserData;
 
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 @SuperBuilder
 @NoArgsConstructor
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
+@CheckUserData
 public class User extends Base {
 
     @NotBlank(message = "User.email не может быть пустым.")
@@ -29,19 +33,8 @@ public class User extends Base {
 
     @NotNull(message = "User.birthday не может быть null.")
     @Past(message = "User.birthday должно быть в прошлом.")
-    LocalDate birthday;
+    private LocalDate birthday;
 
-    @AssertTrue
-    boolean isNameReplacedByLogin() {
-        if (name != null && name.isEmpty()) {
-            if (login != null) {
-                name = login;
-                return true;
-            } else {
-                return false;
-            }
-        }
-        return true;
-    }
+    private final Set<Long> friends = new HashSet<>();
 
 }

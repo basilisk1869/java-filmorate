@@ -10,5 +10,5 @@ import java.io.Serializable;
 @SuperBuilder
 @NoArgsConstructor
 public class Base implements Serializable {
-    protected Integer id;
+    protected Long id;
 }

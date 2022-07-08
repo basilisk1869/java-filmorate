@@ -16,7 +16,7 @@ public class UserTest extends BaseTest {
         return getNormalUser(null);
     }
 
-    public static User getNormalUser(Integer id) {
+    public static User getNormalUser(Long id) {
         return User.builder()
                 .id(id)
                 .email("cyborg@yandex.ru")

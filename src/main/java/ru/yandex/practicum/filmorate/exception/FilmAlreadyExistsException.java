@@ -1,11 +1,8 @@
 package ru.yandex.practicum.filmorate.exception;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import ru.yandex.practicum.filmorate.model.Film;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class FilmAlreadyExistsException extends RuntimeException {
+public class FilmAlreadyExistsException extends AlreadyExistsException {
 
     private final Film film;
 

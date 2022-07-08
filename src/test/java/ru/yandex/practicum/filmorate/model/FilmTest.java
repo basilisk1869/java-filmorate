@@ -16,7 +16,7 @@ public class FilmTest extends BaseTest {
         return getNormalFilm(null);
     }
 
-    public static Film getNormalFilm(Integer id) {
+    public static Film getNormalFilm(Long id) {
        return Film.builder()
                 .id(id)
                 .name("The Best Film" + id)

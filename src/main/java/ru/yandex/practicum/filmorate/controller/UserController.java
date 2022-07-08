@@ -1,64 +1,63 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
-import ru.yandex.practicum.filmorate.exception.UserAlreadyExistsException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/users")
 @Slf4j
 public class UserController {
 
-    private static int lastId = 0;
-    private final HashMap<Integer, User> users = new HashMap<>();
+    private final UserService userService;
 
-    @GetMapping
+    @Autowired
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/users")
     public List<User> getUsers() {
-        return users.values().stream()
-                .sorted(Comparator.comparing(User::getId))
-                .collect(Collectors.toList());
+        return userService.getUsers();
     }
 
-    @PostMapping
+    @PostMapping("/users")
     public User postUser(@Valid @RequestBody User user) {
-        // generate id when needed
-        if (user.getId() == null) {
-            user.setId(lastId + 1);
-        }
-        // check id not exists
-        if (users.containsKey(user.getId())) {
-            log.error("Такой идентификатор пользователя уже существует \"{}\"", user.getId());
-            throw new UserAlreadyExistsException(users.get(user.getId()));
-        }
-        // check login not exists
-        boolean isLoginExists = users.values().stream()
-                .anyMatch(item -> item.getLogin().equals(user.getLogin()));
-        if (isLoginExists) {
-            log.error("Такой логин уже существует \"{}\"", user.getLogin());
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-        // put user
-        users.put(user.getId(), user);
-        log.info("Добавлен/обновлен пользователь \"{}\"", user);
-        // update last id
-        lastId = Integer.max(lastId, user.getId());
-        // return added user
-        return users.get(user.getId());
+        return userService.postUser(user);
     }
 
-    @PutMapping
+    @PutMapping("/users")
     public User putUser(@Valid @RequestBody User user) {
-        users.remove(user.getId());
-        return postUser(user);
+        return userService.putUser(user);
+    }
+
+    @GetMapping("/users/{id}")
+    public User getUser(@PathVariable long id) {
+        return userService.getUser(id);
+    }
+
+    @GetMapping("/users/{id}/friends")
+    public List<User> getFriends(@PathVariable long id) {
+        return userService.getFriends(id);
+    }
+
+    @PutMapping("/users/{id}/friends/{friendId}")
+    public User putFriend(@PathVariable long id, @PathVariable long friendId) {
+        return userService.putFriend(id, friendId);
+    }
+
+    @DeleteMapping("/users/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable long id, @PathVariable long friendId) {
+        return userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("/users/{id}/friends/common/{otherId}")
+    public List<User> getCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 
 }

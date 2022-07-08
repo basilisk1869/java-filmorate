@@ -12,11 +12,12 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface AfterOrEqualsDate {
 
-    String message() default "Invalid date {value}";
+    String message() default "Неверная дата.";
 
     Class<?>[] groups() default {};
 
     Class<? extends Payload>[] payload() default {};
 
     String value();
+
 }
