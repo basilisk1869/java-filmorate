@@ -192,7 +192,6 @@ public class UserControllerTest extends BaseControllerTest {
         user2.getFriends().add(user1.getId());
         mockMvc.perform(makePutRequest("/" + user1.getId() + "/friends/" + user2.getId(), null))
                 .andExpect(status().isOk());
-        shouldGetUsers();
     }
 
     @Test
