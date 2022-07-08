@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +29,14 @@ public class UserControllerTest extends BaseControllerTest {
     private final static HashMap<Long, User> users = new HashMap<>();
 
     @Autowired
-    public UserControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) {
+    public UserControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) throws Exception {
         super(mockMvc, objectMapper, "/users");
+        MvcResult result = mockMvc.perform(makeGetRequest(""))
+                .andExpect(status().isOk())
+                .andReturn();
+        users.clear();
+        objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<User>>(){})
+               .forEach(user -> users.put(user.getId(), user));
     }
 
     void postUser(User user, int status) throws Exception {
@@ -221,7 +228,6 @@ public class UserControllerTest extends BaseControllerTest {
         user2.getFriends().remove(user1.getId());
         mockMvc.perform(makeDeleteRequest("/" + user1.getId() + "/friends/" + user2.getId()))
                 .andExpect(status().isOk());
-        shouldGetUsers();
     }
 
     @Test

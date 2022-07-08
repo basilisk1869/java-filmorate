@@ -36,9 +36,15 @@ public class FilmControllerTest extends BaseControllerTest {
     private final UserControllerTest userControllerTest;
 
     @Autowired
-    public FilmControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) {
+    public FilmControllerTest(MockMvc mockMvc, ObjectMapper objectMapper) throws Exception {
         super(mockMvc, objectMapper, "/films");
         this.userControllerTest = new UserControllerTest(mockMvc, objectMapper);
+        MvcResult result = mockMvc.perform(makeGetRequest(""))
+                .andExpect(status().isOk())
+                .andReturn();
+        films.clear();
+        objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<Film>>(){})
+                .forEach(film -> films.put(film.getId(), film));
     }
 
     void setFilm(Film film, int status, String method) throws Exception {
