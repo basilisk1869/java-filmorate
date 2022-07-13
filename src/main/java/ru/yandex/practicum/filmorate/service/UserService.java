@@ -38,6 +38,10 @@ public class UserService {
         if (isLoginExists) {
             throw new InternalException("Такой логин уже существует \"" + user.getLogin() + "\"");
         }
+        // set name by login when needed
+        if (user.getName().isEmpty()) {
+            user.setName(user.getLogin());
+        }
         // add user and return result
         userStorage.addUser(user);
         return user;

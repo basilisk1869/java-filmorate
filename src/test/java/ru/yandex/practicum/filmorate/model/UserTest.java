@@ -84,14 +84,6 @@ public class UserTest extends BaseTest {
     }
 
     @Test
-    void testWithEmptyName() {
-        User user = getNormalUser();
-        user.setName("");
-        assertEquals(List.of(), validateUser(user));
-        assertEquals(user.getLogin(), user.getName());
-    }
-
-    @Test
     void testWithNullBirthDay() {
         User user = getNormalUser();
         user.setBirthday(null);
